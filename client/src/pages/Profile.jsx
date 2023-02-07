@@ -54,7 +54,8 @@ function Profile() {
   const handleUpdate = async (e) => {
     e.preventDefault();
     try {
-      const data = await updateUser(user._id, {
+      const data = await updateUser({
+        id: user._id,
         name,
         category,
         agreeToTerms,

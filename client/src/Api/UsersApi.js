@@ -20,9 +20,9 @@ export const saveUser = async (payload) => {
   }
 };
 
-export const updateUser = async (id, payload) => {
+export const updateUser = async (payload) => {
   try {
-    const { data } = await apiClient.patch(`users/${id}`, payload);
+    const { data } = await apiClient.patch(`users`, payload);
     return data;
   } catch (error) {
     throw error;

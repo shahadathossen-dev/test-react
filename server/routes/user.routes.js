@@ -11,7 +11,7 @@ const {
 router.get('/', index);
 router.post('/', store);
 router.get('/:id', details);
-router.patch('/:id', update);
+router.patch('/', update);
 router.delete('/:id', destroy);
 
 module.exports = router;
