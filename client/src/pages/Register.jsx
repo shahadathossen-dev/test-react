@@ -17,29 +17,38 @@ function Register() {
   const [errors, setErrors] = useState({});
 
   useEffect(() => {
-    getCategories()
-      .then(async (result) => {
-        const mappedCategories = await result.filter((category) => {
-          if (!category.category) {
-            const subCategories = result.filter((subCategory) => {
-              if (subCategory.category == category._id) {
-                const subSubCategories = result.filter((subSubCategory) => {
-                  if (subSubCategory.category == subCategory._id) {
-                    return subSubCategory;
-                  }
-                });
-                subCategory.subCategories = subSubCategories.length
-                  ? subSubCategories
-                  : [];
-                return subCategory;
-              }
-            });
-            category.subCategories = subCategories.length ? subCategories : [];
-            return category;
-          }
-        });
-        setCategories(mappedCategories);
+    getCategories().then(async (result) => {
+      const mappedCategories = await result.filter((category) => {
+        if (!category.category) {
+          const subCategories = result.filter((subCategory) => {
+            if (subCategory.category == category._id) {
+              const subSubCategories = result.filter((subSubCategory) => {
+                if (subSubCategory.category == subCategory._id) {
+                  const subSubSubCategories = result.filter(
+                    (subSubSubCategory) => {
+                      if (subSubSubCategory.category == subSubCategory._id) {
+                        return subSubSubCategory;
+                      }
+                    }
+                  );
+                  subSubCategory.subCategories = subSubSubCategories.length
+                    ? subSubSubCategories
+                    : [];
+                  return subSubCategory;
+                }
+              });
+              subCategory.subCategories = subSubCategories.length
+                ? subSubCategories
+                : [];
+              return subCategory;
+            }
+          });
+          category.subCategories = subCategories.length ? subCategories : [];
+          return category;
+        }
       });
+      setCategories(mappedCategories);
+    });
   }, [navigate]);
 
   useEffect(() => {
@@ -51,8 +60,8 @@ function Register() {
     try {
       const data = await saveUser({ name, category, agreeToTerms });
       setUser(data.record);
-      toast(data.message)
-      navigate('/');
+      toast(data.message);
+      navigate("/");
     } catch (error) {
       console.log(error);
       setErrors(error.response.data);
@@ -113,13 +122,36 @@ function Register() {
                               {subCategory.subCategories.map(
                                 (subSubCategory) => {
                                   return (
-                                    <option
-                                      key={subSubCategory._id}
-                                      value={subCategory._id}
-                                      className="ps-4 subsubcategory"
-                                    >
-                                      &nbsp; &nbsp; {subSubCategory.name}
-                                    </option>
+                                    <>
+                                      <option
+                                        key={subSubCategory._id}
+                                        value={subSubCategory._id}
+                                        className={
+                                          !!subSubCategory.subCategories.length
+                                            ? "subSubcategory fw-bold"
+                                            : ""
+                                        }
+                                        disabled={
+                                          !!subSubCategory.subCategories.length
+                                        }
+                                      >
+                                        &nbsp; &nbsp; {subSubCategory.name}
+                                      </option>
+                                      {subSubCategory.subCategories.map(
+                                        (subSubSubCategory) => {
+                                          return (
+                                            <option
+                                              key={subSubSubCategory._id}
+                                              value={subSubSubCategory._id}
+                                              className="ps-4 subSubsubcategory"
+                                            >
+                                              &nbsp; &nbsp; &nbsp; &nbsp;{" "}
+                                              {subSubSubCategory.name}
+                                            </option>
+                                          );
+                                        }
+                                      )}
+                                    </>
                                   );
                                 }
                               )}
@@ -139,7 +171,9 @@ function Register() {
                   onChange={(e) => setAgreeToTerms(!agreeToTerms)}
                 />
                 {errors.agreeToTerms && (
-                  <Form.Text className="text-muted">{errors.agreeToTerms}</Form.Text>
+                  <Form.Text className="text-muted">
+                    {errors.agreeToTerms}
+                  </Form.Text>
                 )}
               </Form.Group>
             </Card.Body>
